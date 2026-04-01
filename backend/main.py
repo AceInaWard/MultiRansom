@@ -1,9 +1,45 @@
 #imports
 import random
-THEMES_ALL = ["dark", "light", "not those", "another one", "gang gang", "no cap"]
-PLAYER_NAMES = ["Johnny Test", "Emily", "Andrew"]
-WORDS_ALL = ["weed", "acid", "tacobell", "Cono de Coballo"]
-INIT_WORDS = 15
+
+# --- THE NEW FLASK "DASHBOARD" ---
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+THEMES_ALL = [
+    "How to explain your browser history to your grandma",
+    "A Yelp review for a public restroom",
+    "Your wedding vows if you were a pirate",
+    "How to quit your job via a skywriter",
+    "The secret ingredient in your award-winning chili",
+    "Giving a pep talk to a depressed hamster",
+    "Describing your first date in three words",
+    "A warning label for a mysterious unmarked bottle"
+]
+
+# Standard placeholders for before users join
+PLAYER_NAMES = ["Guest_1", "Secret_Agent", "Word_Wizard"]
+
+WORDS_ALL = [
+    # Nouns
+    "Grandpa", "toenail", "shrimp", "diaper", "lawyer", "moisture", "mayonnaise",
+    "custody", "ferret", "shame", "glitter", "taco", "dignity", "sausage",
+
+    # Verbs
+    "lick", "explode", "weep", "accelerate", "smother", "forgive", "moisturize",
+    "gallop", "evict", "marinate", "dance", "scrub",
+
+    # Adjectives/Adverbs
+    "greasy", "forbidden", "soggy", "suspicious", "aggressive", "shiny", "sticky",
+    "accidentally", "violently", "tenderly", "crunchy",
+
+    # Connectors
+    "is", "the", "and", "my", "your", "with", "into", "because", "on", "not", "very"
+]
+INIT_WORDS = 75
+START_PASS = "69lol"
 
 PLAYER_MAP = {}
 
@@ -30,7 +66,7 @@ class Player:
     def start_presenting(self):
         placeholder_present = []
         used_words = []
-        for _ in range(random.randrange(2,  4)):
+        for _ in range(random.randrange(3,  8)):
             ph_instance = random.choice(self.hand)
             self.hand.remove(ph_instance)
             placeholder_present.append(ph_instance)
@@ -49,15 +85,15 @@ class Presentment:
         #bribe powerup type thing?????
 
 
-#Game ------------
 
 class Game:
     def __init__(self):
+        global START_PASS
         global PLAYER_NAMES
         players_names = PLAYER_NAMES
         self.players = [Player(n) for n in players_names]
+        self.words_in_play = []
         self.themes_in_play = THEMES_ALL
-        self.words_in_play = random.choices(WORDS_ALL , k=(len(self.players) * 150))
         self.players_in_play = []
         self.turn_index = 0
         self.current_judge = ""
@@ -123,9 +159,12 @@ class Game:
         self.used_words.append(words)
 
 
-    def round_start(self):
+    def round_start(self, first=False):
         # for player in game.players:
         #     print(f"{player.name} - hand is {player.hand}")
+        if first:
+            self.words_in_play = random.choices(WORDS_ALL, k=(len(self.players) * 150))
+            self.deal_words(INIT_WORDS, "all")
         self.turn_index += 1
         judge = random.choice(self.players)
         self.current_judge = judge.name
@@ -140,14 +179,66 @@ class Game:
         self.judgment_start()
         self.judgment_call()
 
-#Main --------
+    def add_player(self, name: str):
+        if self.turn_index <= 0:
+            PLAYER_NAMES.append(name)
+            self.players.append(Player(name))
+        else:
+            print(f'game already started, aborting adding player function')
+
+#   INITIALIZE ONCE GLOBALLY
+my_game = Game()
+
+
+@app.route('/status')
+def status():
+    return jsonify({
+        "msg": "The game engine is running!",
+        "player_count": len(my_game.players)
+    })
+
+
+@app.route('/joingame', methods=['POST'])
+def joingame():
+    from flask import request
+    data = request.json
+    name = data["name"]
+    if name:
+        my_game.add_player(name)
+        return jsonify({"success": True, "msg": f"{name} joined the chaos"})
+    else:
+        return jsonify({"success": False, "error": "No name provided"}), 400
+
+@app.route('/startgame', methods=['POST'])
+def play():
+    from flask import request
+    data = request.json
+    given_pass = data["pass"]
+    if given_pass == START_PASS:
+        my_game.round_start(True)
+        return jsonify({"success": True})
+    else:
+        return jsonify({"success": False, "error": "Wrong password"}), 400
+
 
 
 if __name__ == '__main__':
-    game = Game()
-    game.deal_words(INIT_WORDS, "all")
-    game.round_start()
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 
+
+
+
+#Game ------------
+
+
+
+#Main --------
+
+
+# if __name__ == '__main__':
+#
+#     game.deal_words(INIT_WORDS, "all")
+#     game.round_start()
 
 

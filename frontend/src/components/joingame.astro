@@ -1,0 +1,99 @@
+---
+// src/components/JoinGame.astro
+---
+<div class="join-container">
+    <h2>Ransom Notes</h2>
+    
+    <div class="input-group">
+        <label for="playerName">Name</label>
+        <input type="text" id="playerName" placeholder="Enter alias..." />
+    </div>
+
+    <button id="joinBtn">Join Game</button>
+
+    <p id="statusMsg"></p>
+</div>
+
+<style>
+    .join-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 2rem;
+        background: #111; /* Deep Black */
+        color: #eee;
+        border: 1px solid #333;
+        border-radius: 8px;
+        max-width: 320px;
+        margin: 2rem auto;
+        font-family: sans-serif;
+    }
+
+    h2 { margin: 0; font-size: 1.5rem; letter-spacing: -0.05rem; }
+
+    .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    input {
+        background: #222;
+        border: 1px solid #444;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    button {
+        background: #eee;
+        color: #111;
+        border: none;
+        padding: 0.75rem;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    #statusMsg { 
+        text-align: center; 
+        font-size: 0.85rem; 
+        min-height: 1.2rem; 
+        margin: 0;
+    }
+</style>
+
+<script>
+    const btn = document.getElementById('joinBtn');
+    const input = document.getElementById('playerName');
+    const status = document.getElementById('statusMsg');
+
+    const API_BASE = 'http://192.168.1.86:5000';
+
+    btn.addEventListener('click', async () => {
+        const name = input.value.trim();
+        if (!name) return;
+
+        try {
+            status.innerText = 'Connecting...';
+            
+            const response = await fetch(`${API_BASE}/joingame`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                status.innerText = `Joined as ${name}`;
+                status.style.color = '#4ade80'; // Green
+            } else {
+                status.innerText = data.error || 'Error';
+                status.style.color = '#f87171'; // Red
+            }
+        } catch (err) {
+            status.innerText = 'Server Offline';
+            status.style.color = '#f87171';
+        }
+    });
+</script>
