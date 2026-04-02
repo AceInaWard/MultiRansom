@@ -16,7 +16,19 @@ THEMES_ALL = [
     "The secret ingredient in your award-winning chili",
     "Giving a pep talk to a depressed hamster",
     "Describing your first date in three words",
-    "A warning label for a mysterious unmarked bottle"
+    "A warning label for a mysterious unmarked bottle",
+    "A eulogy for a dropped ice cream cone",
+    "Explaining to a cop why your car is full of bees",
+    "Your Tinder bio if you were a Victorian ghost",
+    "A formal apology for accidentally starting a cult",
+    "How to tell your roommate their cooking smells like feet",
+    "A motivational quote for a literal trash can",
+    "The worst possible thing to say during a job interview",
+    "Your strategy for surviving a zombie apocalypse at IKEA",
+    "An Amazon review for a haunted Victorian doll",
+    "The reason you were banned from the local zoo",
+    "How you would describe 'color' to a potato",
+    "A text message to your ex sent at 3 AM"
 ]
 
 # Standard placeholders for before users join
@@ -26,18 +38,28 @@ WORDS_ALL = [
     # Nouns
     "Grandpa", "toenail", "shrimp", "diaper", "lawyer", "moisture", "mayonnaise",
     "custody", "ferret", "shame", "glitter", "taco", "dignity", "sausage",
+    "gravy", "spatula", "sweat", "lawsuit", "pigeons", "ankles", "butter",
+    "goblin", "tentacles", "croissant", "betrayal", "wig", "ointment", "ham",
+    "tofu", "dentures", "garbage", "bucket", "malice", "yeast", "propaganda",
 
     # Verbs
     "lick", "explode", "weep", "accelerate", "smother", "forgive", "moisturize",
     "gallop", "evict", "marinate", "dance", "scrub",
+    "vibrate", "inhale", "slap", "vanish", "tickle", "ferment", "harvest",
+    "lubricate", "ignite", "collapse", "massage", "summon", "shrivel",
 
     # Adjectives/Adverbs
     "greasy", "forbidden", "soggy", "suspicious", "aggressive", "shiny", "sticky",
     "accidentally", "violently", "tenderly", "crunchy",
+    "moist", "crusty", "radioactive", "slippery", "damp", "majestic", "dangerously",
+    "lukewarm", "pungent", "hairy", "expensive", "uncomfortable", "fleshy",
 
     # Connectors
-    "is", "the", "and", "my", "your", "with", "into", "because", "on", "not", "very"
+    "is", "the", "and", "my", "your", "with", "into", "because", "on", "not", "very",
+    "but", "or", "from", "for", "if", "at", "so", "this", "that", "always", "never"
 ]
+
+WIN_POINTS = 4
 INIT_WORDS = 75
 START_PASS = "69lol"
 
@@ -85,6 +107,7 @@ class Presentment:
         #bribe powerup type thing?????
 
 
+#Game -------------------
 
 class Game:
     def __init__(self):
@@ -141,7 +164,7 @@ class Game:
         self.judgement_presents = []
         for p in self.players_in_play:
             self.judgement_presents.append(PLAYER_MAP[p].presenting)
-            print(f"{PLAYER_MAP[p].presenting.sentence} -- Presented For -- {self.current_theme}")
+            print(f"{PLAYER_MAP[p].presenting.sentence}")
         print(f"Judgment Is Now Underway")
 
     def judgment_call(self):
@@ -151,6 +174,9 @@ class Game:
         winner_player.won_theme(self.current_theme)
         for p in self.players:
             print(f"{p.name} -- {len(p.won_themes)}")
+            if len(p.won_themes) >= WIN_POINTS:
+                print(f"{p.name} Has {len(p.won_themes)} and won the game!")
+                return
         print(f"Beginning Round {self.turn_index + 1}!")
         self.round_start()
 
